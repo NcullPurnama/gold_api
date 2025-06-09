@@ -28,10 +28,6 @@ def predict_sequence(model, input_sequence, days_ahead):
     return predictions
 
 def convert_numpy_types(obj):
-    """
-    Fungsi rekursif untuk mengubah numpy types ke tipe Python standar
-    agar bisa diserialisasi ke JSON tanpa error.
-    """
     if isinstance(obj, dict):
         return {k: convert_numpy_types(v) for k, v in obj.items()}
     elif isinstance(obj, list):
@@ -45,8 +41,12 @@ def convert_numpy_types(obj):
     else:
         return obj
 
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['POST', 'OPTIONS'])
 def predict():
+    if request.method == 'OPTIONS':
+        # Jawaban untuk preflight CORS agar tidak error
+        return '', 200
+
     try:
         data = request.get_json()
         days = int(data['days_ahead'])
@@ -70,7 +70,6 @@ def predict():
             'average': average_prediction
         }
 
-        # Pastikan data bebas dari numpy types
         response_data = convert_numpy_types(response_data)
 
         return jsonify(response_data)
