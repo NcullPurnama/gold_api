@@ -41,7 +41,7 @@ def predict():
         input_seq = np.array(scaled).reshape(1, 60, 1)
 
         pred_scaled = predict_sequence(model, input_seq, days)
-        pred_actual = [round(inverse_minmax(p, PRICE_MIN, PRICE_MAX), 2) for p in pred_scaled]
+        pred_actual = [round(float(inverse_minmax(p, PRICE_MIN, PRICE_MAX)), 2) for p in pred_scaled]
 
         average_prediction = round(float(np.mean(pred_actual)), 2)
 
