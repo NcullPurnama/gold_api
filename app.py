@@ -3,8 +3,10 @@ import numpy as np
 import pandas as pd
 import os
 from tensorflow.keras.models import load_model
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 model = load_model('model_lstm_emas.h5')
 
