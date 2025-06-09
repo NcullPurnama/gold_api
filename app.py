@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import numpy as np
 import pandas as pd
-import json
+import os
 from tensorflow.keras.models import load_model
 
 app = Flask(__name__)
@@ -25,6 +25,24 @@ def predict_sequence(model, input_sequence, days_ahead):
 
     return predictions
 
+def convert_numpy_types(obj):
+    """
+    Fungsi rekursif untuk mengubah numpy types ke tipe Python standar
+    agar bisa diserialisasi ke JSON tanpa error.
+    """
+    if isinstance(obj, dict):
+        return {k: convert_numpy_types(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(i) for i in obj]
+    elif isinstance(obj, np.ndarray):
+        return convert_numpy_types(obj.tolist())
+    elif isinstance(obj, (np.float32, np.float64)):
+        return float(obj)
+    elif isinstance(obj, (np.int32, np.int64)):
+        return int(obj)
+    else:
+        return obj
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
@@ -45,10 +63,15 @@ def predict():
 
         average_prediction = round(float(np.mean(pred_actual)), 2)
 
-        return jsonify({
+        response_data = {
             'prediction': pred_actual,
             'average': average_prediction
-        })
+        }
+
+        # Pastikan data bebas dari numpy types
+        response_data = convert_numpy_types(response_data)
+
+        return jsonify(response_data)
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
