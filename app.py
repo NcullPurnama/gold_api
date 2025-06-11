@@ -10,8 +10,8 @@ CORS(app)
 
 model = load_model('model_lstm_emas.h5')
 
-PRICE_MIN = 765.45
-PRICE_MAX = 775.42
+PRICE_MIN = 76545
+PRICE_MAX = 77542
 
 def inverse_minmax(scaled_value, min_, max_):
     return scaled_value * (max_ - min_) + min_
